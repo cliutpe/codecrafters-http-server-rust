@@ -1,5 +1,6 @@
 use anyhow::Result;
 use std::collections::HashMap;
+use std::fs;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::str;
@@ -16,10 +17,8 @@ fn parse_start_line(start_line_str: &str) -> (&str, &str, &str) {
 }
 
 fn parse_header(header_str: &str) -> HashMap<&str, &str> {
-    println!("{:?}", header_str);
     let mut headers = HashMap::new();
     for header_line in header_str.split("\r\n") {
-        println!("{:?}", header_line);
         let pair = header_line.split(": ").collect::<Vec<&str>>();
         if pair.len() == 2 {
             headers.insert(pair[0], pair[1].trim());
@@ -35,7 +34,7 @@ fn handle_connection(mut stream: TcpStream) {
 
     match str::from_utf8(&buffer[..request_size]) {
         Ok(request_str) => {
-            println!("{:?}", request_str);
+            println!("request string:\n\n{:?}", request_str);
             let (start_line_str, header_str) = parse_request(request_str);
             let (_request_method, request_path, _http_version) = parse_start_line(start_line_str);
             let headers = parse_header(header_str);
@@ -58,8 +57,23 @@ fn handle_connection(mut stream: TcpStream) {
                     user_agent.len(),
                     user_agent
                 );
-                println!("{:?}", buffer);
                 stream.write(buffer.as_bytes()).unwrap();
+            } else if request_path.starts_with("/files/") {
+                let file_path = request_path.split("/files/").collect::<Vec<&str>>()[1];
+                match fs::read_to_string(file_path) {
+                    Ok(file_content) => {
+                        let buffer = format!(
+                            "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}",
+                            file_content.len(),
+                            file_content
+                        );
+                        println!("{:?}", buffer);
+                        stream.write(buffer.as_bytes()).unwrap();
+                    }
+                    Err(_e) => {
+                        stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                    }
+                }
             } else {
                 stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
             }
