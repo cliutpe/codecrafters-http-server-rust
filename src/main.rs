@@ -40,7 +40,7 @@ fn handle_connection(mut stream: TcpStream) {
             } else if request_path.starts_with("/echo/") {
                 let random_string = request_path.split("/echo/").collect::<Vec<&str>>()[1];
                 let buffer = format!(
-                    "HTTP/1.1 200 OK\r\n\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
+                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
                     random_string.len(),
                     random_string
                 );
