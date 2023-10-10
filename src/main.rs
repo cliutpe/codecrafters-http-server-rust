@@ -16,6 +16,7 @@ fn handle_connection(mut stream: TcpStream) {
             if start_line[1] == r"/" {
                 stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
             } else if start_line[1].starts_with("/echo/") {
+                println!("here");
                 let random_string = start_line[1].split("/echo/").collect::<Vec<&str>>()[1];
                 println!("{:?}", random_string);
                 let buffer = format!(
