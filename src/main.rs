@@ -13,13 +13,18 @@ fn handle_connection(mut stream: TcpStream) {
             println!("{:?}", lines);
             let start_line = lines[0].split(" ").collect::<Vec<&str>>();
             println!("{:?}", start_line);
-            match start_line[1] {
-                r"/" => {
-                    stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
-                }
-                _ => {
-                    stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
-                }
+            if start_line[1] == r"/" {
+                stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
+            } else if start_line[1].starts_with("/echo/") {
+                let random_string = start_line[1].split("/echo/").collect::<Vec<&str>>()[1];
+                println!("{:?}", random_string);
+                let buffer = format!(
+                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n{}",
+                    random_string
+                );
+                stream.write(buffer.as_bytes()).unwrap();
+            } else {
+                stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
             }
         }
         Err(_e) => {}
