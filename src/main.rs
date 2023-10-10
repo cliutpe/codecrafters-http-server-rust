@@ -1,5 +1,6 @@
 use anyhow::Result;
 use std::collections::HashMap;
+use std::env;
 use std::fs;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
@@ -59,7 +60,11 @@ fn handle_connection(mut stream: TcpStream) {
                 );
                 stream.write(buffer.as_bytes()).unwrap();
             } else if request_path.starts_with("/files/") {
-                let file_path = request_path.split("/files/").collect::<Vec<&str>>()[1];
+                let dir_arg = env::args().next().unwrap();
+                let dir = dir_arg.split_once("=").unwrap().1;
+
+                let file_name = request_path.split("/files/").collect::<Vec<&str>>()[1];
+                let file_path = format!("{}/{}}", dir, file_name);
                 println!("{:?}", file_path);
                 match fs::read_to_string(file_path) {
                     Ok(file_content) => {
