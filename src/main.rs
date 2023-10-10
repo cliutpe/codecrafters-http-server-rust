@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::str;
+use std::thread;
 
 fn parse_request(request_str: &str) -> (&str, &str) {
     let parsed = request_str.splitn(2, "\r\n").collect::<Vec<&str>>();
@@ -72,7 +73,7 @@ fn main() -> Result<()> {
     for stream in listener.incoming() {
         match stream {
             Ok(_stream) => {
-                handle_connection(_stream);
+                thread::spawn(|| handle_connection(_stream));
             }
             Err(_e) => {}
         }
