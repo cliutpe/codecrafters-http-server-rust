@@ -14,7 +14,7 @@ fn handle_connection(mut stream: TcpStream) {
             let start_line = lines[0].split(" ").collect::<Vec<&str>>();
             println!("{:?}", start_line);
             match start_line[1] {
-                r"\" => {
+                r"/" => {
                     stream.write(b"HTTP/1.1 200 OK").unwrap();
                 }
                 _ => {
