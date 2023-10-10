@@ -5,7 +5,7 @@ use std::net::{TcpListener, TcpStream};
 use std::str;
 
 fn parse_request(request_str: &str) -> (&str, &str) {
-    let parsed = request_str.split("\r\n\r\n").collect::<Vec<&str>>();
+    let parsed = request_str.splitn(2, "\r\n").collect::<Vec<&str>>();
     (parsed[0], parsed[1])
 }
 
