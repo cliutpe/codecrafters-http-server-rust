@@ -60,6 +60,7 @@ fn handle_connection(mut stream: TcpStream) {
                 stream.write(buffer.as_bytes()).unwrap();
             } else if request_path.starts_with("/files/") {
                 let file_path = request_path.split("/files/").collect::<Vec<&str>>()[1];
+                println!("{:?}", file_path);
                 match fs::read_to_string(file_path) {
                     Ok(file_content) => {
                         let buffer = format!(
