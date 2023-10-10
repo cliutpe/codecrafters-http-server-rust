@@ -11,6 +11,7 @@ fn handle_connection(mut stream: TcpStream) {
         Ok(request_str) => {
             let lines = request_str.split("\r\n").collect::<Vec<&str>>();
             let start_line = lines[0].split(" ").collect::<Vec<&str>>();
+            println!("{:?}", start_line);
             match start_line[1] {
                 r"\" => {
                     stream.write(b"HTTP/1.1 200 OK").unwrap();
@@ -20,7 +21,7 @@ fn handle_connection(mut stream: TcpStream) {
                 }
             }
         }
-        Err(e) => {}
+        Err(_e) => {}
     }
 }
 fn main() -> Result<()> {
@@ -31,7 +32,7 @@ fn main() -> Result<()> {
             Ok(_stream) => {
                 handle_connection(_stream);
             }
-            Err(e) => {}
+            Err(_e) => {}
         }
     }
     Ok(())
