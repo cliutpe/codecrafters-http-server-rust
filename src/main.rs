@@ -15,10 +15,10 @@ fn handle_connection(mut stream: TcpStream) {
             println!("{:?}", start_line);
             match start_line[1] {
                 r"/" => {
-                    stream.write(b"HTTP/1.1 200 OK").unwrap();
+                    stream.write(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
                 }
                 _ => {
-                    stream.write(b"HTTP/1.1 404 Not Found").unwrap();
+                    stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                 }
             }
         }
