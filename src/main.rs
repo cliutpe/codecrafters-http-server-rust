@@ -10,6 +10,7 @@ fn handle_connection(mut stream: TcpStream) {
     match str::from_utf8(&buffer[..request_size]) {
         Ok(request_str) => {
             let lines = request_str.split("\r\n").collect::<Vec<&str>>();
+            println!("{:?}", lines);
             let start_line = lines[0].split(" ").collect::<Vec<&str>>();
             println!("{:?}", start_line);
             match start_line[1] {
