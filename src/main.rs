@@ -19,7 +19,8 @@ fn handle_connection(mut stream: TcpStream) {
                 let random_string = start_line[1].split("/echo/").collect::<Vec<&str>>()[1];
                 println!("{:?}", random_string);
                 let buffer = format!(
-                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n{}",
+                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
+                    random_string.len(),
                     random_string
                 );
                 println!("{:?}", buffer);
