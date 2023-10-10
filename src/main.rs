@@ -33,6 +33,7 @@ fn handle_connection(mut stream: TcpStream) {
 
     match str::from_utf8(&buffer[..request_size]) {
         Ok(request_str) => {
+            println!("{:?}", request_str);
             let (start_line_str, header_str) = parse_request(request_str);
             let (_request_method, request_path, _http_version) = parse_start_line(start_line_str);
             let headers = parse_header(header_str);
