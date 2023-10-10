@@ -16,8 +16,9 @@ fn parse_start_line(start_line_str: &str) -> (&str, &str, &str) {
 
 fn parse_header(header_str: &str) -> HashMap<&str, &str> {
     let mut headers = HashMap::new();
-    for line in header_str.split("\r\n") {
-        let pair = line.split(": ").collect::<Vec<&str>>();
+    for header_line in header_str.split("\r\n") {
+        println!("{:?}", header_line);
+        let pair = header_line.split(": ").collect::<Vec<&str>>();
         if pair.len() == 2 {
             headers.insert(pair[0], pair[1].trim());
         }
@@ -46,6 +47,7 @@ fn handle_connection(mut stream: TcpStream) {
                 );
                 stream.write(buffer.as_bytes()).unwrap();
             } else if request_path == "/user-agent" {
+                println!("{:?}", headers);
                 let user_agent = headers["User-Agent"];
                 let buffer = format!(
                     "HTTP/1.1 200 OK\r\n\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
