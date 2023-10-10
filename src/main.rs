@@ -17,6 +17,7 @@ fn parse_start_line(start_line_str: &str) -> (&str, &str, &str) {
 fn parse_header(header_str: &str) -> HashMap<&str, &str> {
     let mut headers = HashMap::new();
     for line in header_str.split("\r\n") {
+        println!("{}", line);
         let pair = line.split(": ").collect::<Vec<&str>>();
         headers.insert(pair[0], pair[1].trim());
     }
