@@ -15,6 +15,7 @@ fn parse_start_line(start_line_str: &str) -> (&str, &str, &str) {
 }
 
 fn parse_header(header_str: &str) -> HashMap<&str, &str> {
+    println!("{:?}", header_str);
     let mut headers = HashMap::new();
     for header_line in header_str.split("\r\n") {
         println!("{:?}", header_line);
