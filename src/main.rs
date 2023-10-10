@@ -52,7 +52,7 @@ fn handle_connection(mut stream: TcpStream) {
                 println!("{:?}", headers);
                 let user_agent = headers["User-Agent"];
                 let buffer = format!(
-                    "HTTP/1.1 200 OK\r\n\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
+                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
                     user_agent.len(),
                     user_agent
                 );
