@@ -68,12 +68,14 @@ fn handle_connection(mut stream: TcpStream) {
 fn main() -> Result<()> {
     let listener = TcpListener::bind("127.0.0.1:4221").unwrap();
 
-    for stream in listener.incoming() {
-        match stream {
-            Ok(_stream) => {
-                handle_connection(_stream);
+    loop {
+        for stream in listener.incoming() {
+            match stream {
+                Ok(_stream) => {
+                    handle_connection(_stream);
+                }
+                Err(_e) => {}
             }
-            Err(_e) => {}
         }
     }
     Ok(())
