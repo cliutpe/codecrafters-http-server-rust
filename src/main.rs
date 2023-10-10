@@ -2,14 +2,16 @@ use anyhow::Result;
 use std::collections::HashMap;
 use std::env;
 use std::fs;
+use std::fs::File;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::str;
 use std::thread;
 
-fn parse_request(request_str: &str) -> (&str, &str) {
+fn parse_request(request_str: &str) -> (&str, &str, &str) {
     let parsed = request_str.splitn(2, "\r\n").collect::<Vec<&str>>();
-    (parsed[0], parsed[1])
+    let parsed_no_start_line = parsed[1].splitn(2, "\r\n\r\n").collect::<Vec<&str>>();
+    (parsed[0], parsed_no_start_line[0], parsed_no_start_line[1])
 }
 
 fn parse_start_line(start_line_str: &str) -> (&str, &str, &str) {
@@ -36,8 +38,8 @@ fn handle_connection(mut stream: TcpStream) {
     match str::from_utf8(&buffer[..request_size]) {
         Ok(request_str) => {
             println!("request string:\n\n{:?}", request_str);
-            let (start_line_str, header_str) = parse_request(request_str);
-            let (_request_method, request_path, _http_version) = parse_start_line(start_line_str);
+            let (start_line_str, header_str, body_str) = parse_request(request_str);
+            let (request_method, request_path, _http_version) = parse_start_line(start_line_str);
             let headers = parse_header(header_str);
 
             if request_path == r"/" {
@@ -64,20 +66,24 @@ fn handle_connection(mut stream: TcpStream) {
 
                 let file_name = request_path.split("/files/").collect::<Vec<&str>>()[1];
                 let file_path = format!("{}/{}", dir_args[dir_args.len() - 1], file_name);
-                println!("{:?}", file_path);
-                match fs::read_to_string(file_path) {
-                    Ok(file_content) => {
-                        let buffer = format!(
-                            "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}",
-                            file_content.len(),
-                            file_content
-                        );
-                        println!("{:?}", buffer);
-                        stream.write(buffer.as_bytes()).unwrap();
+                if request_method == "GET" {
+                    match fs::read_to_string(file_path) {
+                        Ok(file_content) => {
+                            let buffer = format!(
+                                "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}",
+                                file_content.len(),
+                                file_content
+                            );
+                            stream.write(buffer.as_bytes()).unwrap();
+                        }
+                        Err(_e) => {
+                            stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+                        }
                     }
-                    Err(_e) => {
-                        stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
-                    }
+                } else if request_method == "POST" {
+                    let mut file = File::create(file_path).unwrap();
+                    file.write_all(body_str.as_bytes()).unwrap();
+                    stream.write(b"HTTP/1.1 201 OK\r\n\r\n").unwrap();
                 }
             } else {
                 stream.write(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
