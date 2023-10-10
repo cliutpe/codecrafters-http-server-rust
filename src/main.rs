@@ -64,7 +64,7 @@ fn handle_connection(mut stream: TcpStream) {
                 let dir = dir_arg.split_once("=").unwrap().1;
 
                 let file_name = request_path.split("/files/").collect::<Vec<&str>>()[1];
-                let file_path = format!("{}/{}}", dir, file_name);
+                let file_path = format!("{}/{}", dir, file_name);
                 println!("{:?}", file_path);
                 match fs::read_to_string(file_path) {
                     Ok(file_content) => {
